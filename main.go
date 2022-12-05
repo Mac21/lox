@@ -5,38 +5,46 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
-	"github.com/mac21/lox/repl"
 	"github.com/mac21/lox/scanner"
 )
 
 var (
 	logger     = log.Default()
-	sourceFile string
+	sourceFile = ""
+	hadError   = false
 )
 
 func init() {
 	flag.StringVar(&sourceFile, "f", "", "Input source file with full path provided")
+	flag.Parse()
 }
 
 func main() {
-	flag.Parse()
-
 	if sourceFile != "" {
 		runFile(sourceFile)
 	} else {
-		repl.Run(os.StdIn, os.StdOut)
+		runPrompt(os.Stdin, os.Stdout)
 	}
 }
 
 func runFile(source string) {
-	fileBytes, err := ioutil.ReadFile(sourceFile)
+	fileBytes, err := ioutil.ReadFile(source)
 	if err != nil {
 		logger.Fatal("Failed to open input file")
 	}
 
-	scn := scanner.New(string(fileBytes))
-	tokens := scn.scanTokens()
+	run(string(fileBytes))
+
+	if hadError {
+		os.Exit(65)
+	}
+}
+
+func run(source string) {
+	s := scanner.New(source)
+	tokens := s.scanTokens()
 
 	for _, tok := range tokens {
 		fmt.Println(tok)

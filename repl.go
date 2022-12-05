@@ -1,4 +1,4 @@
-package repl
+package main
 
 import (
 	"bufio"
@@ -8,7 +8,7 @@ import (
 
 const PROMPT = ">> "
 
-func Run(in io.Reader, out io.Writer) {
+func runPrompt(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 
 	for {
@@ -25,7 +25,6 @@ func Run(in io.Reader, out io.Writer) {
 		}
 
 		line := scanner.Text()
-		l := lexer.New(line)
-		l.ScanToStdout()
+		run(line)
 	}
 }
